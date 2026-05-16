@@ -449,18 +449,74 @@ def verificar_visto_tribunal_contas(dados):
 
 
 # ---------------------------------------------------------------------------
+# Art. 46º-A CCP — adjudicação por lotes
+# Acima de determinados limiares, a não divisão em lotes deve ser fundamentada.
+# ---------------------------------------------------------------------------
+
+def verificar_lotes(dados):
+    # Art. 46º-A/2 CCP
+    # Na formação de contratos de aquisição ou locação de bens ou aquisição
+    # de serviços de valor superior a € 135 000, e empreitadas de valor
+    # superior a € 500 000, a decisão de não contratar por lotes deve ser
+    # fundamentada. O alerta é sempre "aviso" porque a não divisão em lotes
+    # é admissível desde que devidamente fundamentada — os fundamentos
+    # previstos nas alíneas a) e b) do n.º 2 requerem análise casuística.
+    # Nota: o n.º 3 isenta as entidades dos art. 7º e 12º CCP — a UA não
+    # é uma dessas entidades.
+
+    alertas = []
+
+    tipo_objeto = _normalizar_tipo_objeto(dados.get("TIPO_OBJETO") or "")
+    preco_base  = dados.get("PRECO_BASE")
+    tem_lotes   = dados.get("TEM_LOTES")
+
+    if preco_base is None:
+        return alertas
+
+    if tem_lotes:
+        return alertas
+
+    # Limiares do art. 46º-A/2
+    if tipo_objeto == "Empreitada":
+        limiar_lotes = 500_000
+    elif tipo_objeto in ("Aquisição de bens", "Serviços"):
+        limiar_lotes = 135_000
+    else:
+        # "Outros" — não abrangidos expressamente pelo art. 46º-A/2
+        return alertas
+
+    if preco_base > limiar_lotes:
+        alertas.append({
+            "nivel":    "aviso",
+            "artigo":   "art. 46º-A/2 CCP",
+            "campo":    "TEM_LOTES",
+            "mensagem": (
+                f"O valor do contrato ({preco_base:,.2f} €) é superior ao limiar de "
+                f"{limiar_lotes:,.2f} € para '{tipo_objeto}'. A decisão de não dividir "
+                f"o contrato em lotes deve ser expressamente fundamentada no processo, "
+                f"nos termos do art. 46º-A/2 CCP. Constituem fundamento admissível, "
+                f"designadamente, a incindibilidade técnica ou funcional das prestações "
+                f"ou a maior eficiência da gestão de um único contrato."
+            ),
+        })
+
+    return alertas
+
+
+# ---------------------------------------------------------------------------
 # Função agregadora
 # ---------------------------------------------------------------------------
 
 def verificar_limiares(dados):
     """
-    Agrega todas as verificações de limiares, fraccionamento e visto prévio.
-    Cobre os art. 19º, 20º, 21º, 22º e 474º/3 CCP
+    Agrega todas as verificações de limiares, fraccionamento, lotes e visto prévio.
+    Cobre os art. 19º, 20º, 21º, 22º, 46º-A e 474º/3 CCP
     e a Lei n.º 98/97, de 26 de Agosto (LOPTC).
     Devolve lista consolidada de alertas.
     """
     alertas = []
     alertas.extend(verificar_limiar_procedimento(dados))
     alertas.extend(verificar_fracionamento_art22(dados))
+    alertas.extend(verificar_lotes(dados))
     alertas.extend(verificar_visto_tribunal_contas(dados))
     return alertas

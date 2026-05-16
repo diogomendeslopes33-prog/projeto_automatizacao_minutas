@@ -2,23 +2,19 @@
 # Agregador principal do pacote de verificação de conformidade CCP
 # Sistema de Automação de Contratação Pública — Universidade de Aveiro
 #
-# Versão 2 — Maio 2026
-# Estado: ESQUELETO — completar à medida que cada módulo for validado
+# Versão 4 — Maio 2026
 
 # ---------------------------------------------------------------------------
-# Imports — descomentar à medida que cada módulo for implementado e validado
+# Imports
 # ---------------------------------------------------------------------------
 
-from .limiares        import verificar_limiares        # art. 19º-22º e LOPTC  ✅
-from .interpretativas import verificar_interpretativas  # normas não automatizáveis ✅
-
-# from .ajuste_directo  import verificar_ajuste_directo  # art. 112º-129º
-# from .consulta_previa import verificar_consulta_previa # art. 130º-132º
-# from .juri            import verificar_juri            # art. 67º-69º
-# from .caucao          import verificar_caucao          # art. 88º-91º
-# from .prazos          import verificar_prazos          # art. 63º-66º
-# from .execucao        import verificar_execucao        # art. 290º-313º
-# from .empreitadas     import verificar_empreitadas     # art. 343º+
+from .limiares                            import verificar_limiares                # art. 19º-22º, 46º-A e LOPTC  ✅
+from .ajustes_diretos_e_consultas_previas import verificar_ajuste_directo          # art. 112º-117º               ✅
+from .juri_gc_sgc                         import verificar_juri                    # art. 67º-69º e 290º-A        ✅
+from .caucao                              import verificar_caucao                  # art. 88º-90º e 353º          ✅
+from .duracao_contrato                    import verificar_duracao_contrato        # art. 48º, 65º, 440º          ✅
+from .execucao_orcamental                 import verificar_execucao_orcamental     # DL 127/2008, DL 13-A/2025    ✅
+from .interpretativas                     import verificar_interpretativas         # normas não automatizáveis    ✅
 
 
 # ---------------------------------------------------------------------------
@@ -52,53 +48,33 @@ def verificar_conformidade(dados: dict) -> dict:
     todos_alertas = []
     por_modulo    = {}
 
-    # ------------------------------------------------------------------
-    # Módulos activos
-    # ------------------------------------------------------------------
-
     alertas_limiares = verificar_limiares(dados)
     todos_alertas.extend(alertas_limiares)
     por_modulo["limiares"] = alertas_limiares
 
+    alertas_ajuste = verificar_ajuste_directo(dados)
+    todos_alertas.extend(alertas_ajuste)
+    por_modulo["ajustes_diretos_e_consultas_previas"] = alertas_ajuste
+
+    alertas_juri = verificar_juri(dados)
+    todos_alertas.extend(alertas_juri)
+    por_modulo["juri_gc_sgc"] = alertas_juri
+
+    alertas_caucao = verificar_caucao(dados)
+    todos_alertas.extend(alertas_caucao)
+    por_modulo["caucao"] = alertas_caucao
+
+    alertas_duracao = verificar_duracao_contrato(dados)
+    todos_alertas.extend(alertas_duracao)
+    por_modulo["duracao_contrato"] = alertas_duracao
+
+    alertas_exec_orc = verificar_execucao_orcamental(dados)
+    todos_alertas.extend(alertas_exec_orc)
+    por_modulo["execucao_orcamental"] = alertas_exec_orc
+
     alertas_interpretativas = verificar_interpretativas(dados)
     todos_alertas.extend(alertas_interpretativas)
     por_modulo["interpretativas"] = alertas_interpretativas
-
-    # ------------------------------------------------------------------
-    # Módulos por activar — descomentar quando validados
-    # ------------------------------------------------------------------
-
-    # alertas_ajuste = verificar_ajuste_directo(dados)
-    # todos_alertas.extend(alertas_ajuste)
-    # por_modulo["ajuste_directo"] = alertas_ajuste
-
-    # alertas_consulta = verificar_consulta_previa(dados)
-    # todos_alertas.extend(alertas_consulta)
-    # por_modulo["consulta_previa"] = alertas_consulta
-
-    # alertas_juri = verificar_juri(dados)
-    # todos_alertas.extend(alertas_juri)
-    # por_modulo["juri"] = alertas_juri
-
-    # alertas_caucao = verificar_caucao(dados)
-    # todos_alertas.extend(alertas_caucao)
-    # por_modulo["caucao"] = alertas_caucao
-
-    # alertas_prazos = verificar_prazos(dados)
-    # todos_alertas.extend(alertas_prazos)
-    # por_modulo["prazos"] = alertas_prazos
-
-    # alertas_execucao = verificar_execucao(dados)
-    # todos_alertas.extend(alertas_execucao)
-    # por_modulo["execucao"] = alertas_execucao
-
-    # alertas_empreitadas = verificar_empreitadas(dados)
-    # todos_alertas.extend(alertas_empreitadas)
-    # por_modulo["empreitadas"] = alertas_empreitadas
-
-    # ------------------------------------------------------------------
-    # Consolidar resultados
-    # ------------------------------------------------------------------
 
     return {
         "total_erros":  sum(1 for a in todos_alertas if a["nivel"] == "erro"),
@@ -131,10 +107,10 @@ def imprimir_relatorio(resultado: dict) -> None:
         print("  Nenhum alerta encontrado.")
     else:
         for alerta in resultado["alertas"]:
-            nivel  = alerta.get("nivel",    "?").upper()
-            artigo = alerta.get("artigo",   "—")
-            campo  = alerta.get("campo",    "—")
-            msg    = alerta.get("mensagem", "—")
+            nivel    = alerta.get("nivel",    "?").upper()
+            artigo   = alerta.get("artigo",   "—")
+            campo    = alerta.get("campo",    "—")
+            msg      = alerta.get("mensagem", "—")
             juridico = " [ANÁLISE JURÍDICA]" if alerta.get("requer_analise_juridica") else ""
             print(f"  [{nivel}]{juridico} {artigo} | {campo}")
             print(f"    {msg}")
