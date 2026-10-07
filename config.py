@@ -25,7 +25,9 @@ PASTA_PDFS_EMPRESAS = os.getenv("PASTA_PDFS_EMPRESAS", "formularios/empresas")
 APINFORMA_API_KEY   = os.getenv("APINFORMA_API_KEY")
 
 # --- Camada C — Acumulados ERP ---
-FICHEIRO_ERP = os.getenv("FICHEIRO_ERP")
+PASTA_ACUMULADOS_EMPRESA = os.getenv("PASTA_ACUMULADOS_EMPRESA", "formularios/acumulados_empresa")
+PASTA_ACUMULADOS_CPV     = os.getenv("PASTA_ACUMULADOS_CPV", "formularios/acumulados_cpv")
+PASTA_ACUMULADOS_OBJETOS = os.getenv("PASTA_ACUMULADOS_OBJETOS", "formularios/acumulados_objetos")
 
 
 def listar_formularios():
@@ -77,8 +79,8 @@ def validar_configuracao():
         avisos.append("UTILIZADOR não definido — logs sem identificação")
     if MODO_EMPRESAS == "pdf":
         avisos.append("APINFORMA_API_KEY não configurada — Camada B em modo PDF")
-    if not FICHEIRO_ERP:
-        avisos.append("FICHEIRO_ERP não configurado — Camada C inactiva")
+    if not PASTA_ACUMULADOS_EMPRESA:
+        avisos.append("PASTA_ACUMULADOS_EMPRESA não encontrada — Camada C inactiva")
 
     # Apresentar resultados
     if avisos:

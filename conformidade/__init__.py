@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------------
 
 from .limiares                            import verificar_limiares                # art. 19º-22º, 46º-A e LOPTC  ✅
-from .ajustes_diretos_e_consultas_previas import verificar_ajuste_directo          # art. 112º-117º               ✅
+from .ajuste_diretos_e_consultas_previas  import verificar_ajuste_directo          # art. 112º-117º               ✅
 from .juri_gc_sgc                         import verificar_juri                    # art. 67º-69º e 290º-A        ✅
 from .caucao                              import verificar_caucao                  # art. 88º-90º e 353º          ✅
 from .duracao_contrato                    import verificar_duracao_contrato        # art. 48º, 65º, 440º          ✅
@@ -21,7 +21,7 @@ from .interpretativas                     import verificar_interpretativas      
 # Função principal
 # ---------------------------------------------------------------------------
 
-def verificar_conformidade(dados: dict) -> dict:
+def verificar_conformidade(dados: dict, momento: str = "lancamento") -> dict:
     """
     Ponto de entrada único do verificador de conformidade CCP.
 
@@ -72,7 +72,7 @@ def verificar_conformidade(dados: dict) -> dict:
     todos_alertas.extend(alertas_exec_orc)
     por_modulo["execucao_orcamental"] = alertas_exec_orc
 
-    alertas_interpretativas = verificar_interpretativas(dados)
+    alertas_interpretativas = verificar_interpretativas(dados, momento=momento)
     todos_alertas.extend(alertas_interpretativas)
     por_modulo["interpretativas"] = alertas_interpretativas
 

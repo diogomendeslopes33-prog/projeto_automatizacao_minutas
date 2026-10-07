@@ -24,7 +24,7 @@ def _escrever(caminho_ficheiro, entrada):
         f.write(json.dumps(entrada, ensure_ascii=False) + "\n")
 
 
-def log_tecnico(evento, dados=None):
+def log_tecnico(evento, dados=None, procedimento_id=None):
     """
     Regista um evento interno do sistema.
 
@@ -38,6 +38,7 @@ def log_tecnico(evento, dados=None):
     entrada = {
         "timestamp": _timestamp(),
         "utilizador": config.UTILIZADOR,
+        "procedimento_id": procedimento_id,
         "evento": evento,
         "dados": dados or {}
     }
@@ -45,7 +46,7 @@ def log_tecnico(evento, dados=None):
     _escrever(caminho, entrada)
 
 
-def log_utilizacao(formulario, tipo_procedimento, tipo_contrato):
+def log_utilizacao(formulario, tipo_procedimento, tipo_contrato, procedimento_id=None):
     """
     Regista uma execução do sistema — um formulário processado.
 
@@ -55,6 +56,7 @@ def log_utilizacao(formulario, tipo_procedimento, tipo_contrato):
     entrada = {
         "timestamp": _timestamp(),
         "utilizador": config.UTILIZADOR,
+        "procedimento_id": procedimento_id,
         "formulario": os.path.basename(formulario),
         "tipo_procedimento": tipo_procedimento,
         "tipo_contrato": tipo_contrato
@@ -97,7 +99,7 @@ def registar_decisao_terminal():
     }
 
 
-def log_supervisao(formulario, tipo_procedimento, decisao):
+def log_supervisao(formulario, tipo_procedimento, decisao, procedimento_id=None):
     """
     Regista a decisão de supervisão do técnico sobre o output gerado.
     Dados de treino para futuros modelos especializados.
@@ -111,6 +113,7 @@ def log_supervisao(formulario, tipo_procedimento, decisao):
     entrada = {
         "timestamp": _timestamp(),
         "utilizador": config.UTILIZADOR,
+        "procedimento_id": procedimento_id,
         "formulario": os.path.basename(formulario),
         "tipo_procedimento": tipo_procedimento,
         "decisao": decisao.get("decisao"),

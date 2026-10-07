@@ -11,14 +11,9 @@
 #   alteração legislativa à data de Maio de 2026 — verificar publicação
 #   em Diário da República antes de reutilizar este ficheiro.
 #
-# Versão 3 — Maio 2026
+# Versão 4 — Junho 2026
 # Estado: Por validar
 
-# ---------------------------------------------------------------------------
-# Limiares (em euros)
-# ---------------------------------------------------------------------------
-
-# Limiares de escolha do procedimento — art. 19º, 20º e 21º CCP
 LIMIARES = {
     "Empreitada": {
         "ajuste_directo":  30_000,
@@ -38,9 +33,6 @@ LIMIARES = {
     },
 }
 
-# Limiares comunitários (JOUE) — art. 19º/a), 20º/a) e 474º/3 CCP
-# Valores aplicáveis a procedimentos iniciados a partir de 1 de Janeiro de 2026.
-# Actualização bianual por regulamento europeu — rever em Janeiro de 2028.
 LIMIARES_JOUE = {
     "Empreitada":        5_404_000,
     "Aquisição de bens":   216_000,
@@ -48,9 +40,6 @@ LIMIARES_JOUE = {
     "Outros":              216_000,
 }
 
-# Limiares de dispensa do art. 22º/2 CCP
-# Aplicável se cada procedimento for inferior a estes valores
-# E o conjunto não exceda 20% do somatório calculado nos termos do art. 22º/1
 LIMIARES_DISPENSA_22 = {
     "Empreitada":        1_000_000,
     "Aquisição de bens":    80_000,
@@ -58,14 +47,9 @@ LIMIARES_DISPENSA_22 = {
     "Outros":               80_000,
 }
 
-# Limiares de visto prévio do Tribunal de Contas
-# Lei n.º 98/97, de 26 de Agosto (LOPTC) — versão actualizada
-# NOTA: limiares em proposta de alteração legislativa à data de Maio de 2026.
-# Verificar publicação em Diário da República antes de reutilizar este ficheiro.
-LIMIAR_TC_CONTRATO   = 750_000   # contrato individual
-LIMIAR_TC_ACUMULADO  = 950_000   # somatório de contratos relacionados
+LIMIAR_TC_CONTRATO   = 750_000
+LIMIAR_TC_ACUMULADO  = 950_000
 
-# Mapeamento de aliases — normaliza variações do campo TIPO_OBJETO
 _ALIASES = {
     "empreitada":            "Empreitada",
     "empreitada de obras":   "Empreitada",
@@ -97,7 +81,6 @@ def _limiar_seguinte(tipo_objeto: str, tipo_procedimento: str) -> tuple:
     limiar_joue = LIMIARES_JOUE[tipo_objeto]
 
     if tipo_procedimento == "Ajuste Directo":
-        # O seguinte pode ser consulta prévia ou concurso público
         return (
             limiares["consulta_previa"],
             limiar_joue,
@@ -121,19 +104,7 @@ def _limiar_seguinte(tipo_objeto: str, tipo_procedimento: str) -> tuple:
     return (None, None, None, None)
 
 
-# ---------------------------------------------------------------------------
-# Art. 19º, 20º e 21º CCP
-# Verificar se o procedimento escolhido é admissível face ao valor do contrato
-# ---------------------------------------------------------------------------
-
 def verificar_limiar_procedimento(dados):
-    # Art. 19º, 20º e 21º CCP
-    # O procedimento adoptado tem de ser admissível face ao valor do contrato.
-    # Ajuste directo e consulta prévia só são permitidos abaixo dos limiares
-    # fixados por tipo de objecto. Concurso público sem publicação no JOUE é
-    # admissível abaixo do limiar comunitário; acima desse limiar, a publicação
-    # no Jornal Oficial da União Europeia é obrigatória.
-
     alertas = []
 
     tipo_procedimento = (dados.get("TIPO_PROCEDIMENTO") or "").strip()
@@ -153,7 +124,6 @@ def verificar_limiar_procedimento(dados):
     limiares    = LIMIARES[tipo_objeto]
     limiar_joue = LIMIARES_JOUE[tipo_objeto]
 
-    # --- Ajuste directo ---
     if tipo_procedimento == "Ajuste Directo":
         limite = limiares["ajuste_directo"]
         if preco_base >= limite:
@@ -171,7 +141,6 @@ def verificar_limiar_procedimento(dados):
                 ),
             })
 
-    # --- Consulta prévia ---
     elif tipo_procedimento == "Consulta Prévia":
         limite = limiares["consulta_previa"]
         if preco_base >= limite:
@@ -186,7 +155,6 @@ def verificar_limiar_procedimento(dados):
                 ),
             })
 
-    # --- Concurso público sem publicação no JOUE ---
     elif tipo_procedimento == "Concurso Público":
         if preco_base >= limiar_joue:
             alertas.append({
@@ -202,9 +170,7 @@ def verificar_limiar_procedimento(dados):
                 ),
             })
 
-    # --- Concurso público com publicação no JOUE ---
     elif tipo_procedimento == "Concurso Público Internacional":
-        # Admissível para qualquer valor — sem limiar máximo.
         if preco_base < limiar_joue:
             alertas.append({
                 "nivel":    "info",
@@ -221,23 +187,7 @@ def verificar_limiar_procedimento(dados):
     return alertas
 
 
-# ---------------------------------------------------------------------------
-# Art. 22º CCP — fraccionamento da despesa e acumulados
-# Transversal a todos os procedimentos.
-# ---------------------------------------------------------------------------
-
 def verificar_fracionamento_art22(dados):
-    # Art. 22º CCP
-    # Quando prestações do mesmo tipo são contratadas através de mais do que
-    # um procedimento, a escolha do procedimento deve ter em conta o somatório
-    # dos valores acumulados (n.º 1/a) e b)).
-    # A dispensa do n.º 2 não elimina a obrigação de fundamentação — é sempre
-    # emitido alerta para que o técnico fundamente com base nessa dispensa.
-    # A escala de alertas acompanha a hierarquia dos procedimentos:
-    #   ajuste directo → consulta prévia ou concurso público (conforme o valor)
-    #   consulta prévia → concurso público
-    #   concurso público → concurso público com publicidade JOUE
-
     alertas = []
 
     tipo_objeto       = _normalizar_tipo_objeto(dados.get("TIPO_OBJETO") or "")
@@ -255,7 +205,6 @@ def verificar_fracionamento_art22(dados):
 
     total_acumulado = preco_base + acum_cpv
 
-    # --- Verificar dispensa do art. 22º/2 ---
     dentro_dispensa = (
         preco_base < limiar_disp
         and total_acumulado > 0
@@ -275,9 +224,7 @@ def verificar_fracionamento_art22(dados):
                 f"que o técnico fundamente expressamente essa opção no processo."
             ),
         })
-        # Não termina aqui — continua para verificar o limiar seguinte
 
-    # --- Verificar se o somatório obriga a procedimento mais exigente ---
     if tipo_procedimento == "Ajuste Directo":
         limiar_cp   = limiares["consulta_previa"]
         if total_acumulado >= limiar_joue:
@@ -371,7 +318,6 @@ def verificar_fracionamento_art22(dados):
                 ),
             })
 
-    # --- Art. 22º/1/b) — previsibilidade dos procedimentos subsequentes ---
     if acum_objeto:
         alertas.append({
             "nivel":    "aviso",
@@ -389,27 +335,13 @@ def verificar_fracionamento_art22(dados):
     return alertas
 
 
-# ---------------------------------------------------------------------------
-# Lei n.º 98/97, de 26 de Agosto (LOPTC) — visto prévio do Tribunal de Contas
-#
-# NOTA: limiares em proposta de alteração legislativa à data de Maio de 2026.
-# Verificar publicação em Diário da República antes de reutilizar este ficheiro.
-# ---------------------------------------------------------------------------
-
 def verificar_visto_tribunal_contas(dados):
-    # Lei n.º 98/97, de 26 de Agosto (LOPTC) — versão actualizada
-    # Contratos de valor igual ou superior a 750 000 € estão sujeitos a
-    # fiscalização prévia do Tribunal de Contas.
-    # Contratos relacionados cujo somatório contratual seja igual ou superior
-    # a 950 000 € estão igualmente sujeitos a fiscalização prévia.
-
     alertas = []
 
     preco_base = dados.get("PRECO_BASE") or 0
     acum_cpv   = dados.get("ACUM_CPV") or 0
     acum_objeto = dados.get("ACUM_OBJETO") or []
 
-    # Contrato individual
     if preco_base >= LIMIAR_TC_CONTRATO:
         alertas.append({
             "nivel":    "erro",
@@ -424,7 +356,6 @@ def verificar_visto_tribunal_contas(dados):
             ),
         })
 
-    # Somatório de contratos relacionados (ACUM_CPV + ACUM_OBJETO)
     total_relacionados = preco_base + acum_cpv + sum(
         c.get("valor", 0) for c in acum_objeto if isinstance(c, dict)
     )
@@ -448,19 +379,24 @@ def verificar_visto_tribunal_contas(dados):
     return alertas
 
 
-# ---------------------------------------------------------------------------
-# Art. 46º-A CCP — adjudicação por lotes
-# Acima de determinados limiares, a não divisão em lotes deve ser fundamentada.
-# ---------------------------------------------------------------------------
-
 def verificar_lotes(dados):
     # Art. 46º-A/2 CCP
     # Na formação de contratos de aquisição ou locação de bens ou aquisição
     # de serviços de valor superior a € 135 000, e empreitadas de valor
     # superior a € 500 000, a decisão de não contratar por lotes deve ser
-    # fundamentada. O alerta é sempre "aviso" porque a não divisão em lotes
-    # é admissível desde que devidamente fundamentada — os fundamentos
-    # previstos nas alíneas a) e b) do n.º 2 requerem análise casuística.
+    # fundamentada.
+    #
+    # CORRECÇÃO (Junho 2026): o nível do alerta passou de "aviso" para
+    # "erro". A obrigação de fundamentação prevista no art. 46º-A/2 não é
+    # uma faculdade dispensável — é sempre exigida acima do limiar, e a
+    # ausência de fundamentação não fica sanada só por o técnico optar por
+    # não dividir em lotes. A fundamentação (quando exista) é precisamente
+    # o que resolve este erro no processo — não é uma alternativa a ele.
+    # Por isso o alerta deve bloquear o avanço como qualquer outro erro de
+    # conformidade, tal como já acontecia, por exemplo, com a obrigação de
+    # caução do art. 88º/1 CCP (ver verificar_obrigatoriedade_caucao em
+    # caucao.py, que já usa "erro" no mesmo género de situação).
+    #
     # Nota: o n.º 3 isenta as entidades dos art. 7º e 12º CCP — a UA não
     # é uma dessas entidades.
 
@@ -476,25 +412,24 @@ def verificar_lotes(dados):
     if tem_lotes:
         return alertas
 
-    # Limiares do art. 46º-A/2
     if tipo_objeto == "Empreitada":
         limiar_lotes = 500_000
     elif tipo_objeto in ("Aquisição de bens", "Serviços"):
         limiar_lotes = 135_000
     else:
-        # "Outros" — não abrangidos expressamente pelo art. 46º-A/2
         return alertas
 
     if preco_base > limiar_lotes:
         alertas.append({
-            "nivel":    "aviso",
+            "nivel":    "erro",
             "artigo":   "art. 46º-A/2 CCP",
             "campo":    "TEM_LOTES",
             "mensagem": (
                 f"O valor do contrato ({preco_base:,.2f} €) é superior ao limiar de "
                 f"{limiar_lotes:,.2f} € para '{tipo_objeto}'. A decisão de não dividir "
-                f"o contrato em lotes deve ser expressamente fundamentada no processo, "
-                f"nos termos do art. 46º-A/2 CCP. Constituem fundamento admissível, "
+                f"o contrato em lotes tem de ser expressamente fundamentada no processo, "
+                f"nos termos do art. 46º-A/2 CCP — a fundamentação é obrigatória acima "
+                f"deste limiar e não pode ser omitida. Constituem fundamento admissível, "
                 f"designadamente, a incindibilidade técnica ou funcional das prestações "
                 f"ou a maior eficiência da gestão de um único contrato."
             ),
@@ -503,9 +438,116 @@ def verificar_lotes(dados):
     return alertas
 
 
-# ---------------------------------------------------------------------------
-# Função agregadora
-# ---------------------------------------------------------------------------
+def verificar_acumulado_fornecedor(dados):
+    # Art. 113º/2, 113º/6 e 114º/2 CCP
+    # Limite de acumulação do valor contratado com o MESMO fornecedor,
+    # através da MESMA forma de adjudicação (ajuste directo ou consulta
+    # prévia), no período de referência do ERP (ano económico + 2 anos
+    # anteriores).
+    #
+    # DECISÃO DE ARQUITECTURA: este limite reutiliza os MESMOS valores já
+    # definidos em LIMIARES (art. 19º-21º) — não existe um sistema de
+    # limiares próprio para este artigo. O valor que não pode ser
+    # excedido, acumulado com o mesmo fornecedor, é o mesmo que define se
+    # o procedimento é, em geral, admissível por via do valor. Confirmado
+    # nos próprios dados do ERP: o relatório por fornecedor mostra
+    # "Limite: 19 999,99 €" para Bens/Serviços + Ajuste Directo, que
+    # corresponde a LIMIARES["Aquisição de bens"]["ajuste_directo"] =
+    # 20 000 (convenção do ERP de expressar "inferior a" como valor-0,01).
+    #
+    # Este procedimento só se aplica a Ajuste Directo e Consulta Prévia —
+    # Concurso Público não tem este limite por fornecedor específico.
+    #
+    # Fonte de dados: cada empresa em dados["EMPRESAS_CONVIDADAS"] pode
+    # ter a chave "acum_fornecedor" (produzida por
+    # acumulados_empresa.carregar_acumulado_fornecedor a partir do
+    # relatório PDF do ERP), com a estrutura:
+    #   {"categorias": {"Bens ou Serviços": {"Ajuste Direto": {...}}, ...}}
+    #
+    # Se a empresa não tiver "acum_fornecedor" (PDF não obtido/não
+    # verificado), gera-se um AVISO a pedir confirmação manual — nunca se
+    # assume 0 silenciosamente (mesmo princípio já aplicado ao campo
+    # CAUCAO em ler_pdf.py).
+
+    alertas = []
+
+    tipo_procedimento = (dados.get("TIPO_PROCEDIMENTO") or "").strip()
+    tipo_objeto        = _normalizar_tipo_objeto(dados.get("TIPO_OBJETO") or "")
+    preco_base         = dados.get("PRECO_BASE")
+    empresas           = dados.get("EMPRESAS_CONVIDADAS") or []
+
+    # Mapeamento tipo_objeto (interno) → categoria do ERP no relatório PDF
+    _MAPA_CATEGORIA_ERP = {
+        "Aquisição de bens": "Bens ou Serviços",
+        "Serviços":          "Bens ou Serviços",
+        "Empreitada":        "Empreitadas de obras públicas",
+    }
+    # Mapeamento tipo_procedimento (interno) → forma de adjudicação do ERP
+    _MAPA_FORMA_ERP = {
+        "Ajuste Directo":  "Ajuste Direto",
+        "Consulta Prévia": "Consulta Prévia",
+    }
+
+    categoria_erp = _MAPA_CATEGORIA_ERP.get(tipo_objeto)
+    forma_erp     = _MAPA_FORMA_ERP.get(tipo_procedimento)
+
+    if categoria_erp is None or forma_erp is None or preco_base is None:
+        # "Outros", Concurso Público, ou preço base indeterminado — este
+        # limite por fornecedor não se aplica ou não pode ser calculado
+        return alertas
+
+    for empresa in empresas:
+        nome            = empresa.get("nome", "[sem nome]")
+        acum_fornecedor = empresa.get("acum_fornecedor")
+
+        if acum_fornecedor is None:
+            alertas.append({
+                "nivel":    "aviso",
+                "artigo":   "art. 113º/2, 113º/6 e 114º/2 CCP",
+                "campo":    "EMPRESAS_CONVIDADAS",
+                "mensagem": (
+                    f"Não foi possível verificar o valor já acumulado, por "
+                    f"esta forma de adjudicação, com a entidade '{nome}'. "
+                    f"Confirmar manualmente no ERP antes de convidar esta "
+                    f"entidade, nos termos do art. 113º/2, 113º/6 e "
+                    f"114º/2 CCP."
+                ),
+            })
+            continue
+
+        dados_categoria = (
+            acum_fornecedor.get("categorias", {})
+            .get(categoria_erp, {})
+            .get(forma_erp)
+        )
+        if dados_categoria is None:
+            continue  # sem histórico nesta categoria — nada a acumular
+
+        disponivel = dados_categoria.get("disponivel")
+        if disponivel is None:
+            continue
+
+        if preco_base > disponivel:
+            alertas.append({
+                "nivel":    "erro",
+                "artigo":   "art. 113º/2, 113º/6 e 114º/2 CCP",
+                "campo":    "EMPRESAS_CONVIDADAS",
+                "mensagem": (
+                    f"O valor do presente procedimento ({preco_base:,.2f} €) "
+                    f"excede o valor ainda disponível para contratar com "
+                    f"'{nome}' por {tipo_procedimento.lower()} em "
+                    f"'{tipo_objeto}' ({disponivel:,.2f} €), face ao "
+                    f"acumulado já contratado com esta entidade no período "
+                    f"de referência do ERP "
+                    f"({dados_categoria.get('total', 0):,.2f} € de "
+                    f"{dados_categoria.get('limite', 0):,.2f} €). Não é "
+                    f"admissível manter esta entidade convidada por esta "
+                    f"via sem recorrer a procedimento mais exigente."
+                ),
+            })
+
+    return alertas
+
 
 def verificar_limiares(dados):
     """
@@ -519,4 +561,5 @@ def verificar_limiares(dados):
     alertas.extend(verificar_fracionamento_art22(dados))
     alertas.extend(verificar_lotes(dados))
     alertas.extend(verificar_visto_tribunal_contas(dados))
+    alertas.extend(verificar_acumulado_fornecedor(dados))
     return alertas

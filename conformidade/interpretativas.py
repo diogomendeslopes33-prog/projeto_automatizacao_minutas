@@ -36,6 +36,7 @@ NORMAS_INTERPRETATIVAS = [
                      "salvo se cada unidade for independentemente responsável pelas suas "
                      "aquisições (art. 17º/6 CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 17º/7 CCP",
@@ -51,6 +52,7 @@ NORMAS_INTERPRETATIVAS = [
                      "médios unitários de prestações similares em anteriores procedimentos "
                      "(art. 17º/7 CCP).",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 17º/8 CCP",
@@ -67,6 +69,7 @@ NORMAS_INTERPRETATIVAS = [
                      "artificial do valor do contrato para efeitos de escolha de "
                      "procedimento menos exigente (art. 17º/8 CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -88,6 +91,7 @@ NORMAS_INTERPRETATIVAS = [
                      "procedimentos subsequentes, com impacto na escolha do procedimento "
                      "aplicável (art. 22º/1/b) CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -111,6 +115,7 @@ NORMAS_INTERPRETATIVAS = [
                      "incindibilidade técnica ou funcional das prestações ou na maior "
                      "eficiência da gestão de um único contrato (art. 46º-A/2/a) e b) CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -131,6 +136,7 @@ NORMAS_INTERPRETATIVAS = [
                      "adjudicante no ano económico em curso ou nos dois anos anteriores, "
                      "fora do âmbito do Estatuto do Mecenato (art. 113º/5 CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -154,6 +160,7 @@ NORMAS_INTERPRETATIVAS = [
                      "automática de estruturas, como acordos informais ou relações "
                      "pessoais entre titulares (art. 114º/2 CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -172,6 +179,7 @@ NORMAS_INTERPRETATIVAS = [
                      "os requisitos do art. 116º CCP, em particular no que respeita ao "
                      "prazo para prestação de esclarecimentos.",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -195,6 +203,7 @@ NORMAS_INTERPRETATIVAS = [
                      "entidade convidada integra o agrupamento e que não se trata de "
                      "procedimento em que tal seja proibido.",
         "nivel":     "info",
+        "momento":   "pos_abertura",
     },
 
     # -----------------------------------------------------------------------
@@ -215,6 +224,7 @@ NORMAS_INTERPRETATIVAS = [
                      "essa designação é adequada face às regras de segregação de funções "
                      "e inexistência de conflitos de interesses (art. 67º/2 CCP).",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 67º/3 CCP",
@@ -232,6 +242,7 @@ NORMAS_INTERPRETATIVAS = [
                      "conduzido pelos serviços (art. 67º/3 CCP). Confirmar se esta "
                      "dispensa foi ou não exercida.",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 67º/4 CCP",
@@ -246,6 +257,7 @@ NORMAS_INTERPRETATIVAS = [
                      "uma proposta — nesse caso, o júri pode ser dispensado "
                      "(art. 67º/4 CCP).",
         "nivel":     "info",
+        "momento":   "pos_abertura",
     },
     {
         "artigo":    "art. 67º/5 CCP",
@@ -263,6 +275,7 @@ NORMAS_INTERPRETATIVAS = [
                      "de inexistência de conflitos de interesses, nos termos do "
                      "art. 67º/5 CCP e do modelo constante do anexo XIII ao CCP.",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -284,6 +297,7 @@ NORMAS_INTERPRETATIVAS = [
                      "fundamentadas por maioria sem abstenção, e registo em acta dos "
                      "votos de vencido (art. 68º CCP).",
         "nivel":     "info",
+        "momento":   "pos_abertura",
     },
 
     # -----------------------------------------------------------------------
@@ -307,6 +321,7 @@ NORMAS_INTERPRETATIVAS = [
                      "ou 7º CCP) ou art. 88º/2/c) (contrato ao abrigo do art. 95º/1/c) "
                      "CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 89º/3 CCP",
@@ -321,6 +336,7 @@ NORMAS_INTERPRETATIVAS = [
                      "exceder 2% da utilidade económica imediata do contrato "
                      "(art. 89º/3 CCP).",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 89º/4 CCP",
@@ -338,6 +354,7 @@ NORMAS_INTERPRETATIVAS = [
                      "cada renovação está condicionada à prestação de nova caução "
                      "(art. 89º/4 CCP).",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -358,6 +375,7 @@ NORMAS_INTERPRETATIVAS = [
                      "do contrato, garantindo condições de efectiva concorrência "
                      "(art. 63º/2 CCP).",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
 
     # -----------------------------------------------------------------------
@@ -379,9 +397,8 @@ NORMAS_INTERPRETATIVAS = [
                      "natureza das prestações ou às condições de execução "
                      "(art. 440º/1 CCP).",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
-]
-
 
     # -----------------------------------------------------------------------
     # Art. 290º-A CCP — Gestor do contrato
@@ -403,6 +420,7 @@ NORMAS_INTERPRETATIVAS = [
                      "deve elaborar indicadores de execução quantitativos e qualitativos "
                      "adequados ao tipo de contrato, nos termos do art. 290º-A/3 CCP.",
         "nivel":     "aviso",
+        "momento":   "execucao",
     },
     {
         "artigo":    "art. 290º-A/7 CCP",
@@ -415,6 +433,7 @@ NORMAS_INTERPRETATIVAS = [
                      "inexistência de conflitos de interesses antes do início de funções, "
                      "nos termos do art. 290º-A/7 CCP e do modelo do anexo XIII ao CCP.",
         "nivel":     "aviso",
+        "momento":   "pos_abertura",
     },
 
     # -----------------------------------------------------------------------
@@ -425,7 +444,7 @@ NORMAS_INTERPRETATIVAS = [
         "titulo":    "Adiantamentos de preço",
         "descricao": "O contraente público pode efectuar adiantamentos de preço até 30% "
                      "do preço contratual, desde que seja prestada caução de valor igual "
-                     "ou superior aos adiantamentos.",
+                     "ou superior aos adiantamentos, e esteja previsto no CE",
         "motivo":    "Os adiantamentos dependem de decisão da entidade adjudicante e "
                      "das condições do contrato — não são verificáveis a priori.",
         "condicao_alerta": lambda dados: False,
@@ -433,6 +452,7 @@ NORMAS_INTERPRETATIVAS = [
                      "não excede 30% do preço contratual e que é prestada caução de "
                      "valor igual ou superior (art. 292º/1 CCP).",
         "nivel":     "info",
+        "momento":   ["lancamento", "execucao"],
     },
 
     # -----------------------------------------------------------------------
@@ -450,6 +470,7 @@ NORMAS_INTERPRETATIVAS = [
         "mensagem":  "Qualquer modificação do contrato deve ser fundamentada nos termos "
                      "do art. 312º CCP e respeitar os limites do art. 313º CCP.",
         "nivel":     "info",
+        "momento":   "execucao",
     },
     {
         "artigo":    "art. 313º CCP",
@@ -463,6 +484,7 @@ NORMAS_INTERPRETATIVAS = [
                      "do art. 313º CCP, designadamente que não altera a natureza global "
                      "do contrato nem falseia a concorrência.",
         "nivel":     "info",
+        "momento":   "execucao",
     },
     {
         "artigo":    "art. 315º CCP",
@@ -476,6 +498,7 @@ NORMAS_INTERPRETATIVAS = [
                      "dos contratos públicos até cinco dias após a sua concretização, "
                      "sendo a publicitação condição de eficácia (art. 315º CCP).",
         "nivel":     "info",
+        "momento":   "execucao",
     },
 
     # -----------------------------------------------------------------------
@@ -498,6 +521,7 @@ NORMAS_INTERPRETATIVAS = [
                      "aspectos relacionados com a obra (art. 344º/2 CCP). Confirmar a "
                      "designação antes do início dos trabalhos.",
         "nivel":     "aviso",
+        "momento":   ["lancamento", "execucao"],
     },
     {
         "artigo":    "art. 352º CCP",
@@ -515,6 +539,7 @@ NORMAS_INTERPRETATIVAS = [
                      "está na posse administrativa dos terrenos necessários antes da "
                      "celebração do contrato, nos termos do art. 352º CCP.",
         "nivel":     "aviso",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 370º/4 CCP",
@@ -531,6 +556,7 @@ NORMAS_INTERPRETATIVAS = [
                      "50% do preço contratual inicial (art. 370º/4 CCP). Monitorizar "
                      "durante a execução do contrato.",
         "nivel":     "info",
+        "momento":   "execucao",
     },
     {
         "artigo":    "art. 397º/2 CCP",
@@ -550,6 +576,7 @@ NORMAS_INTERPRETATIVAS = [
                      "estruturais e instalações técnicas) e 3 anos (equipamentos), "
                      "nos termos do art. 397º/2 CCP.",
         "nivel":     "info",
+        "momento":   "lancamento",
     },
     {
         "artigo":    "art. 403º/1 CCP",
@@ -568,17 +595,31 @@ NORMAS_INTERPRETATIVAS = [
                      "contratual inicial, podendo o contrato prever valor superior "
                      "até ao dobro desse limite.",
         "nivel":     "info",
+        "momento":   "execucao",
     },
 ]
 
 
-def verificar_interpretativas(dados):
+def verificar_interpretativas(dados, momento="lancamento"):
     """
     Verifica quais normas interpretativas são relevantes para este procedimento
     e emite alertas para análise jurídica pelo técnico ou agente jurídico.
+
+    O parâmetro `momento` filtra as normas por fase do procedimento:
+        "lancamento"   — momento de lançar o procedimento (default)
+        "pos_abertura" — após abertura de propostas
+        "execucao"     — durante ou após execução contratual
     """
     alertas = []
     for norma in NORMAS_INTERPRETATIVAS:
+        # Filtra por momento
+        momento_norma = norma.get("momento", "lancamento")
+        if isinstance(momento_norma, list):
+            if momento not in momento_norma:
+                continue
+        elif momento_norma != momento:
+            continue
+
         try:
             if norma["condicao_alerta"](dados):
                 alertas.append({
@@ -587,6 +628,7 @@ def verificar_interpretativas(dados):
                     "campo":                   None,
                     "mensagem":                norma["mensagem"],
                     "requer_analise_juridica": True,
+                    "momento":                 momento_norma,
                 })
         except Exception:
             pass

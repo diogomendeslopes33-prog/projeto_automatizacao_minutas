@@ -43,7 +43,7 @@ def limpar_valor_monetario(texto):
 def limpar_email(texto):
     """
     Extrai endereço de email de uma string.
-    "Técnico superior Sofia Portugal sofiaportugal@ua.pt" → "sofiaportugal@ua.pt"
+    "Técnico superior Rui Ruiu ruiruiu@ua.pt" → "ruiruiu@ua.pt"
     """
     if not texto:
         return ""
@@ -74,27 +74,44 @@ def formatar_valor_euros(valor):
 def valor_por_extenso(valor):
     """
     Converte valor numérico para texto por extenso em português.
-    50000 → "cinquenta mil euros"
-    Suporta valores até 999.999 euros.
+    Inclui cêntimos. Suporta até 999.999.999 euros.
+    Exemplos:
+        30312.21 → trinta mil trezentos e doze euros e vinte e um cêntimos
+        50000.00 → cinquenta mil euros
+        1500.50  → mil e quinhentos euros e cinquenta cêntimos
+        1000000  → um milhão de euros
     """
     if valor is None:
         return "[a preencher]"
 
     try:
-        valor = int(float(valor))
+        valor = float(valor)
     except (ValueError, TypeError):
         return "[a preencher]"
 
-    unidades = ["", "um", "dois", "três", "quatro", "cinco",
-                "seis", "sete", "oito", "nove", "dez",
-                "onze", "doze", "treze", "catorze", "quinze",
-                "dezasseis", "dezassete", "dezoito", "dezanove"]
-    dezenas = ["", "", "vinte", "trinta", "quarenta", "cinquenta",
-               "sessenta", "setenta", "oitenta", "noventa"]
-    centenas = ["", "cem", "duzentos", "trezentos", "quatrocentos",
-                "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"]
+    if valor < 0:
+        return "[a preencher]"
+
+    euros = int(valor)
+    centimos = round((valor - euros) * 100)
+
+    unidades_lst = [
+        "", "um", "dois", "três", "quatro", "cinco",
+        "seis", "sete", "oito", "nove", "dez",
+        "onze", "doze", "treze", "catorze", "quinze",
+        "dezasseis", "dezassete", "dezoito", "dezanove"
+    ]
+    dezenas_lst = [
+        "", "", "vinte", "trinta", "quarenta", "cinquenta",
+        "sessenta", "setenta", "oitenta", "noventa"
+    ]
+    centenas_lst = [
+        "", "cem", "duzentos", "trezentos", "quatrocentos",
+        "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"
+    ]
 
     def converter_centenas(n):
+        """Converte número de 1 a 999 para extenso."""
         if n == 0:
             return ""
         if n == 100:
@@ -102,33 +119,97 @@ def valor_por_extenso(valor):
         c = n // 100
         resto = n % 100
         if resto == 0:
-            return centenas[c]
+            return centenas_lst[c]
         if resto < 20:
-            u = unidades[resto]
+            u = unidades_lst[resto]
         else:
-            d = dezenas[resto // 10]
+            d = dezenas_lst[resto // 10]
             u_idx = resto % 10
-            u = d + (" e " + unidades[u_idx] if u_idx else "")
-        return (centenas[c] + " e " + u) if c else u
+            u = d + (" e " + unidades_lst[u_idx] if u_idx else "")
+        return (centenas_lst[c] + " e " + u) if c else u
 
-    if valor == 0:
-        return "zero euros"
-    if valor < 0:
-        return "[a preencher]"
+    def converter_inteiro(n):
+        """Converte inteiro para extenso, sem unidade monetária."""
+        if n == 0:
+            return "zero"
 
-    milhares = valor // 1000
-    resto = valor % 1000
+        milhoes = n // 1000000
+        resto_m = n % 1000000
+        milhares = resto_m // 1000
+        resto = resto_m % 1000
 
-    partes = []
-    if milhares:
-        if milhares == 1:
-            partes.append("mil")
+        partes = []
+
+        if milhoes:
+            if milhoes == 1:
+                partes.append("um milhão")
+            else:
+                partes.append(converter_centenas(milhoes) + " milhões")
+
+        if milhares:
+            if milhares == 1:
+                partes.append("mil")
+            else:
+                partes.append(converter_centenas(milhares) + " mil")
+
+        if resto:
+            partes.append(converter_centenas(resto))
+
+        if not partes:
+            return "zero"
+
+        # Regra do "e":
+        # — entre milhares e resto quando resto < 100
+        # — sempre entre milhões/mil e resto quando só há duas partes simples
+        if len(partes) == 1:
+            return partes[0]
+
+        # Regra do "e":
+        # 1. Último bloco < 100 → sempre "e"
+        # 2. Exactamente dois blocos e o segundo é centena redonda → "e"
+        #    ex: "mil e quinhentos", "dois mil e trezentos"
+        # 3. Resto contrário → sem "e"
+
+        ultimo_numero = resto if resto > 0 else (milhares if milhoes > 0 and milhares > 0 and resto == 0 else 0)
+
+        if resto > 0 and resto < 100:
+            # "trinta mil e doze", "mil e dois"
+            usa_e = True
+        elif len(partes) == 2 and resto == 0 and milhoes == 0 and milhares > 0:
+            # "mil e quinhentos", "dois mil e trezentos"
+            usa_e = True
+        elif len(partes) == 2 and milhoes > 0 and milhares == 0 and resto == 0:
+            # "um milhão e quinhentos" — nunca acontece com estrutura actual
+            usa_e = True
         else:
-            partes.append(converter_centenas(milhares) + " mil")
-    if resto:
-        partes.append(converter_centenas(resto))
+            usa_e = False
 
-    return " e ".join(partes) + " euros"
+        if usa_e:
+            return " ".join(partes[:-1]) + " e " + partes[-1]
+        else:
+            return " ".join(partes)
+
+    # Constrói resultado final
+    if euros == 0 and centimos == 0:
+        return "zero euros"
+
+    partes_resultado = []
+
+    if euros > 0:
+        texto_euros = converter_inteiro(euros)
+        # "de" após milhão/milhões
+        if euros >= 1000000 and euros % 1000000 == 0:
+            partes_resultado.append(texto_euros + " de euros")
+        else:
+            unidade = "euro" if euros == 1 else "euros"
+            partes_resultado.append(texto_euros + " " + unidade)
+
+    if centimos > 0:
+        texto_centimos = converter_inteiro(centimos)
+        unidade = "cêntimo" if centimos == 1 else "cêntimos"
+        partes_resultado.append(texto_centimos + " " + unidade)
+
+    return " e ".join(partes_resultado)
 
 
 def formatar_data(texto):
@@ -161,8 +242,8 @@ def juntar_campos(lista, separador="\n"):
     """
     Junta lista de strings num único campo para marcadores compostos.
     Usado para vogais, empresas, etc.
-    ["Ana Braga — anabraga@ua.pt", "Liliana Afonso — liliana.afonso@ua.pt"]
-    → "Ana Braga — anabraga@ua.pt\nLiliana Afonso — liliana.afonso@ua.pt"
+    ["Ara Arara — araarara@ua.pt", "Lia Lia — lialia@ua.pt"]
+    → "Ara Arara — araarara@ua.pt\nLia Lia — lialia@ua.pt"
     """
     if not lista:
         return "[a preencher]"
